@@ -253,29 +253,6 @@ void Transcoder::preProcessCodecLatency()
 	}
 }
 
-bool Transcoder::processFrame()
-{
-	if( _streamTranscoders.size() == 0 )
-		return false;
-
-	if( _verbose )
-		std::cout << "process frame" << std::endl;
-
-	for( size_t streamIndex = 0; streamIndex < _streamTranscoders.size(); ++streamIndex )
-	{
-		if( _verbose )
-			std::cout << "process stream " << streamIndex << "/" << _streamTranscoders.size() - 1 << std::endl;
-
-		bool streamProcessStatus = _streamTranscoders.at( streamIndex )->processFrame();
-		if( ! streamProcessStatus )
-		{
-			_streamTranscoders.clear();
-			return false;
-		}
-	}
-	return true;
-}
-
 void Transcoder::process( IProgress& progress )
 {
 	if( _streamTranscoders.size() == 0 )
@@ -289,24 +266,27 @@ void Transcoder::process( IProgress& progress )
 	_outputFile.beginWrap();
 
 	preProcessCodecLatency();
-
+	
 	double totalDuration = getTotalDurationFromProcessMethod();
 
 	size_t frame = 0;
-	bool frameProcessed = true;
-	while( frameProcessed )
+
+	int streamIndexToProcess = 0;
+	while( streamIndexToProcess >= 0 )
 	{
 		if( _verbose )
 			std::cout << "process frame " << frame << std::endl;
 
-		frameProcessed =  processFrame();
-
+		streamIndexToProcess = _streamTranscoders.at( streamIndexToProcess )->processFrame();
+		
 		if( progress.progress( _outputFile.getProgressDuration(), totalDuration ) == eJobStatusCancel )
 			break;
 
 		++frame;
 	}
-
+	
+	_streamTranscoders.clear();
+	
 	if( _verbose )
 		std::cout << "end of transcoding" << std::endl;
 

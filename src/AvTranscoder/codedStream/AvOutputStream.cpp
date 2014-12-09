@@ -14,7 +14,7 @@ AvOutputStream::AvOutputStream( OutputFile& outputFile, const size_t streamIndex
 {
 }
 
-IOutputStream::EWrappingStatus AvOutputStream::wrap( const CodedData& data )
+int AvOutputStream::wrap( const CodedData& data )
 {
 	assert( _outputFile != NULL );
 	return _outputFile->wrap( data, _streamIndex );

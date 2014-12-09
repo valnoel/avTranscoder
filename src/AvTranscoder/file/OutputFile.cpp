@@ -147,25 +147,24 @@ bool OutputFile::beginWrap( )
 	return true;
 }
 
-IOutputStream::EWrappingStatus OutputFile::wrap( const CodedData& data, const size_t streamId )
+int OutputFile::wrap( const CodedData& data, const size_t streamId )
 {
+	int nextStreamId = streamId + 1;
+	if( nextStreamId == _outputStreams.size() )
+		nextStreamId == 0;
+	
 	if( ! data.getSize() )
-		return IOutputStream::eWrappingSuccess;
+		return nextStreamId;
 	if( _verbose )
 		std::cout << "wrap on stream " << streamId << " (" << data.getSize() << " bytes for frame " << _frameCount.at( streamId ) << ")" << std::endl;
+
 	AVPacket packet;
 	av_init_packet( &packet );
 
-	//av_packet_from_data( &packet, (uint8_t*)data.getPtr(), data.getSize() );
-
 	packet.stream_index = streamId;
-
 	packet.data = (uint8_t*)data.getPtr();
 	packet.size = data.getSize();
-	// packet.dts = _frameCount.at( streamId );
-	// packet.pts = ;
 
-	// int ret = av_write_frame( _formatContext, &packet );
 	int ret = av_interleaved_write_frame( _formatContext, &packet );
 
 	if( ret != 0 )
@@ -176,7 +175,7 @@ IOutputStream::EWrappingStatus OutputFile::wrap( const CodedData& data, const si
 		msg += err;
 		// throw std::runtime_error( msg );
 		std::cout << msg << std::endl;
-		return IOutputStream::eWrappingError;
+		return -1;
 	}
 
 	av_free_packet( &packet );
@@ -189,14 +188,14 @@ IOutputStream::EWrappingStatus OutputFile::wrap( const CodedData& data, const si
 	if( currentStreamDuration < _previousProcessedStreamDuration )
 	{
 		// if the current stream is strictly shorter than the previous, wait for more data
-		return IOutputStream::eWrappingWaitingForData;
+		return streamId;
 	}
 
 	_previousProcessedStreamDuration = currentStreamDuration;
 	
 	_packetCount++;
 	_frameCount.at( streamId )++;
-	return IOutputStream::eWrappingSuccess;
+	return nextStreamId;
 }
 
 bool OutputFile::endWrap( )

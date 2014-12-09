@@ -85,8 +85,9 @@ public:
 	 * @brief Wrap a packet of data in the output ressource
 	 * @param data coded packet information for the current stream
 	 * @param streamId refers to the stream in output ressource
+	 * @return the next stream ID to process, or -1 on error
 	**/
-	virtual IOutputStream::EWrappingStatus wrap( const CodedData& data, const size_t streamId );
+	virtual int wrap( const CodedData& data, const size_t streamId );
 
 	/**
 	 * @brief Finalize the end of the wrapping

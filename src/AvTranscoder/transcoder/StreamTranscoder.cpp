@@ -277,7 +277,7 @@ void StreamTranscoder::preProcessCodecLatency()
 	}
 }
 
-bool StreamTranscoder::processFrame()
+int StreamTranscoder::processFrame()
 {
 	++_frameProcessed;
 
@@ -293,7 +293,7 @@ bool StreamTranscoder::processFrame()
 	return processTranscode( _subStreamIndex );	
 }
 
-bool StreamTranscoder::processRewrap()
+int StreamTranscoder::processRewrap()
 {
 	assert( _inputStream  != NULL );
 	assert( _outputStream != NULL );
@@ -301,25 +301,12 @@ bool StreamTranscoder::processRewrap()
 	CodedData data;
 
 	if( ! _inputStream->readNextPacket( data ) )
-		return false;
+		return -1;
 
-	IOutputStream::EWrappingStatus wrappingStatus = _outputStream->wrap( data );
-
-	switch( wrappingStatus )
-	{
-		case IOutputStream::eWrappingSuccess:
-			return true;
-		case IOutputStream::eWrappingWaitingForData:
-			// the wrapper needs more data to write the current packet
-			return processRewrap();
-		case IOutputStream::eWrappingError:
-			return false;
-	}
-
-	return true;
+	return _outputStream->wrap( data );
 }
 
-bool StreamTranscoder::processTranscode( const int subStreamIndex )
+int StreamTranscoder::processTranscode( const int subStreamIndex )
 {
 	assert( _inputEssence   != NULL );
 	assert( _currentEssence != NULL );
@@ -367,26 +354,13 @@ bool StreamTranscoder::processTranscode( const int subStreamIndex )
 				switchToGeneratorEssence();
 				return processTranscode();
 			}
-			return false;
+			return -1;
 		}
 	}
 	if( _verbose )
 		std::cout << "wrap (" << data.getSize() << " bytes)" << std::endl;
 
-	IOutputStream::EWrappingStatus wrappingStatus = _outputStream->wrap( data );
-
-	switch( wrappingStatus )
-	{
-		case IOutputStream::eWrappingSuccess:
-			return true;
-		case IOutputStream::eWrappingWaitingForData:
-			// the wrapper needs more data to write the current packet
-			return processTranscode( subStreamIndex );
-		case IOutputStream::eWrappingError:
-			return false;
-	}
-
-	return true;
+	return _outputStream->wrap( data );
 }
 
 void StreamTranscoder::switchEssence( bool swithToGenerator )

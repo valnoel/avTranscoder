@@ -105,16 +105,10 @@ public:
 	 * @note Can take a little bit of time.
 	 */
 	void preProcessCodecLatency();
-	
-	/**
-	 * @brief Process the next frame of all streams.
-	 * @return if a frame was processed or not.
-	 */
-	bool processFrame();
 
 	/**
 	 * @brief Process all the streams, and ended the process depending on the transcode politic.
-	 * @note The function manages all process: init(), beginWrap(), processFrame()s, and endWrap().
+	 * @note The function manages all process: beginWrap(), preProcessCodecLatency(), process frames, and endWrap().
 	 * @param progress: choose a progress, or create your own in C++ or in bindings by inherit IProgress class.
 	 * @see IProgress
 	 */

@@ -26,7 +26,7 @@ public:
 
 	virtual size_t getStreamIndex() const = 0;
 
-	virtual EWrappingStatus wrap( const CodedData& data ) = 0;
+	virtual int wrap( const CodedData& data ) = 0;
 };
 
 }

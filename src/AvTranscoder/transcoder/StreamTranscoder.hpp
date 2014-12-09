@@ -49,9 +49,9 @@ public:
 	
 	/**
 	 * @brief process a single frame for the current stream
-	 * @return the process status result
+	 * @return the next stream ID to process, or -1 on error
 	 */
-	bool processFrame();
+	int processFrame();
 
 	void switchEssence( bool swithToGenerator = true );
 	void switchToGeneratorEssence();
@@ -75,8 +75,8 @@ public:
 	void setOffset( bool offset = true ){ _offset = offset; }
 
 private:
-	bool processRewrap();
-	bool processTranscode( const int subStreamIndex = -1 );  ///< By default transcode all channels
+	int processRewrap();
+	int processTranscode( const int subStreamIndex = -1 );  ///< By default transcode all channels
 
 private:
 	IInputStream*   _inputStream;

@@ -15,7 +15,7 @@ public:
 
 	size_t getStreamIndex() const { return _streamIndex; }
 
-	IOutputStream::EWrappingStatus wrap( const CodedData& data );
+	int wrap( const CodedData& data );
 
 private:
 	OutputFile* _outputFile;  ///< Has link (no ownership)
