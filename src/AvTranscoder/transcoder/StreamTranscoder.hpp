@@ -115,7 +115,7 @@ public:
         eProcessCaseRewrap,
         eProcessCaseGenerator
     };
-    EProcessCase getProcessCase() const;
+    EProcessCase getProcessCase(const size_t decoderIndex = 0) const;
     //@}
 
 private:
@@ -125,9 +125,12 @@ private:
      * @param inputStream
      */
     void addDecoder(const InputStreamDesc& inputStreamDesc, IInputStream& inputStream);
+    void addGenerator(const InputStreamDesc& inputStreamDesc, const ProfileLoader::Profile& profile);
 
     bool processRewrap();
     bool processTranscode();
+
+    size_t getFirstInputStreamIndex();
 
 private:
     std::vector<InputStreamDesc> _inputStreamDesc; ///< Description of the data to extract from the input stream.
